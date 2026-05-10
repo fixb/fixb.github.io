@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pages Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f3ea;
+    --bg-elev: #fdfaf2;
+    --border: #e6dfce;
+    --border-strong: #d4c9ae;
+    --text: #1c1c1e;
+    --text-dim: #6b6760;
+    --text-faint: #a09b90;
+    --accent: #1f5d6b;
+    --accent-warm: #b85c38;
+    --fresh: #4a9d3f;
+    --warm: #d49a3a;
+    --cool: #9b9690;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 12% 0%, rgba(31, 93, 107, 0.06), transparent 45%),
+      radial-gradient(circle at 88% 100%, rgba(184, 92, 56, 0.05), transparent 45%);
+    background-attachment: fixed;
+  }
+
+  .container { max-width: 1240px; margin: 0 auto; padding: 88px 40px 48px; }
+
+  header {
+    margin-bottom: 56px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 36px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    margin-bottom: 28px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow .ico { font-size: 14px; }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 144, "SOFT" 50;
+  }
+  h1 em { font-style: italic; color: var(--accent-warm); font-weight: 300; }
+
+  .meta {
+    display: flex; gap: 56px; margin-top: 36px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    color: var(--text); flex-wrap: wrap;
+  }
+  .meta-item-label {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--text-faint); margin-bottom: 6px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em;
+  }
+
+  .legend {
+    display: flex; gap: 20px; margin-top: 28px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.15em;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+
+  .controls {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 32px;
+    opacity: 0; animation: fadeUp 0.8s ease 0.15s forwards;
+  }
+
+  .search {
+    background: transparent; border: none;
+    border-bottom: 1px solid var(--border-strong);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    padding: 12px 0 12px 26px; width: 320px; max-width: 100%;
+    outline: none; transition: border-color 0.3s;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b6760' stroke-width='2'><circle cx='11' cy='11' r='7'/><path d='m21 21-4.3-4.3'/></svg>");
+    background-repeat: no-repeat; background-position: 0 14px;
+  }
+  .search:focus { border-color: var(--accent); }
+  .search::placeholder { color: var(--text-faint); }
+
+  .count {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.15em;
+  }
+  .count em { color: var(--accent-warm); font-style: normal; font-weight: 500; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1px; background: var(--border); border: 1px solid var(--border);
+  }
+
+  .card {
+    background: var(--bg-elev); padding: 32px 32px 28px;
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column; min-height: 220px;
+    position: relative; transition: background 0.35s ease;
+    opacity: 0; animation: fadeUp 0.6s ease forwards;
+  }
+  .card:hover { background: #fff; }
+  .card:hover .card-arrow { transform: translateX(6px); color: var(--accent-warm); }
+  .card:hover .card-name { color: var(--accent); }
+
+  .card-meta {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    color: var(--text-dim); margin-bottom: 18px;
+    text-transform: uppercase; letter-spacing: 0.12em;
+  }
+  .freshness {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .freshness.fresh { background: var(--fresh); box-shadow: 0 0 0 3px rgba(74, 157, 63, 0.18); }
+  .freshness.warm  { background: var(--warm); }
+  .freshness.cool  { background: var(--cool); }
+  .card-date-abs { color: var(--text-faint); font-size: 10px; margin-left: auto; }
+
+  .card-name {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 26px; line-height: 1.15; letter-spacing: -0.01em;
+    margin-bottom: 14px; font-variation-settings: "opsz" 36;
+    transition: color 0.3s; word-break: break-word; color: var(--text);
+  }
+
+  .card-desc {
+    font-size: 14px; color: var(--text-dim); line-height: 1.6;
+    flex: 1; margin-bottom: 28px;
+  }
+  .card-desc.empty-desc { color: var(--text-faint); font-style: italic; }
+
+  .card-arrow {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.18em;
+    transition: transform 0.3s, color 0.3s; align-self: flex-start;
+  }
+
+  .status {
+    grid-column: 1 / -1; padding: 96px 40px; text-align: center;
+    background: var(--bg-elev); color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+  }
+  .status.error { color: #b94a3d; }
+  .status .hint { display: block; margin-top: 12px; color: var(--text-faint); font-size: 11px; }
+  .status code { background: var(--border); padding: 2px 6px; border-radius: 3px; }
+
+  footer {
+    margin-top: 80px; padding-top: 36px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.18em;
+  }
+  footer a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+  footer a:hover { color: var(--accent-warm); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 56px 24px 40px; }
+    .meta { gap: 24px; }
+    .controls { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .search { width: 100%; }
+    .grid { grid-template-columns: 1fr; }
+    .card { min-height: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="eyebrow"><span class="ico">📂</span><span>Pages Index</span></div>
+    <h1>Projects <em>&amp; tools</em></h1>
+    <div class="meta">
+      <div class="meta-item">
+        <span class="meta-item-label">👤 Curator</span>
+        <span id="user">—</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-item-label">🌐 Pages live</span>
+        <span id="total">—</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-item-label">🔄 Last sync</span>
+        <span id="sync">—</span>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="freshness fresh"></span> Updated &lt; 30 days</div>
+      <div class="legend-item"><span class="freshness warm"></span> 30 days – 6 months</div>
+      <div class="legend-item"><span class="freshness cool"></span> Older than 6 months</div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <input type="text" id="search" class="search" placeholder="filter projects…" autocomplete="off" />
+    <div class="count">📊 <em id="visible">0</em> visible</div>
+  </div>
+
+  <div class="grid" id="grid">
+    <div class="status">⏳ Fetching from GitHub…</div>
+  </div>
+
+  <footer>
+    <a id="src" href="#" target="_blank" rel="noopener">github.com/</a>
+    <span>✨ Auto-synced via GitHub API</span>
+  </footer>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════════════════════
+  //   CONFIG — replace with your GitHub username, then save.
+  // ═══════════════════════════════════════════════════════════════════
+  const USERNAME = 'YOUR_USERNAME';
+  // ═══════════════════════════════════════════════════════════════════
+
+  const grid       = document.getElementById('grid');
+  const searchEl   = document.getElementById('search');
+  const visibleEl  = document.getElementById('visible');
+  const userEl     = document.getElementById('user');
+  const totalEl    = document.getElementById('total');
+  const syncEl     = document.getElementById('sync');
+  const srcEl      = document.getElementById('src');
+
+  userEl.textContent = USERNAME;
+  srcEl.textContent  = 'github.com/' + USERNAME;
+  srcEl.href         = 'https://github.com/' + USERNAME;
+
+  let allRepos = [];
+  let firstRender = true;
+
+  function relativeTime(iso) {
+    const diff = Date.now() - new Date(iso).getTime();
+    const sec = Math.floor(diff / 1000);
+    const min = Math.floor(sec / 60);
+    const hr  = Math.floor(min / 60);
+    const day = Math.floor(hr / 24);
+    const wk  = Math.floor(day / 7);
+    const mo  = Math.floor(day / 30);
+    const yr  = Math.floor(day / 365);
+    if (sec < 60)   return 'just now';
+    if (min < 60)   return min + 'm ago';
+    if (hr  < 24)   return hr  + 'h ago';
+    if (day === 1)  return 'yesterday';
+    if (day < 7)    return day + 'd ago';
+    if (wk  < 5)    return wk  + 'w ago';
+    if (mo  < 12)   return mo  + 'mo ago';
+    return yr + 'y ago';
+  }
+
+  function absoluteDate(iso) {
+    return new Date(iso).toLocaleDateString('en-GB', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    });
+  }
+
+  function freshnessClass(iso) {
+    const days = (Date.now() - new Date(iso).getTime()) / 86400000;
+    if (days < 30)  return 'fresh';
+    if (days < 180) return 'warm';
+    return 'cool';
+  }
+
+  function render(repos) {
+    if (repos.length === 0) {
+      grid.innerHTML = '<div class="status">🔍 No projects match your search.</div>';
+      visibleEl.textContent = '0';
+      return;
+    }
+    grid.innerHTML = repos.map((repo, i) => {
+      const delay = firstRender ? Math.min(i * 0.04, 0.5) : 0;
+      const desc = repo.description
+        ? `<div class="card-desc">${escapeHtml(repo.description)}</div>`
+        : `<div class="card-desc empty-desc">No description provided.</div>`;
+      return `
+        <a class="card" href="${repo.url}" target="_blank" rel="noopener" style="animation-delay:${delay}s">
+          <div class="card-meta">
+            <span class="freshness ${freshnessClass(repo.updated_at)}"></span>
+            <span>${relativeTime(repo.updated_at)}</span>
+            <span class="card-date-abs">${absoluteDate(repo.updated_at)}</span>
+          </div>
+          <div class="card-name">${escapeHtml(repo.name)}</div>
+          ${desc}
+          <div class="card-arrow">View site →</div>
+        </a>
+      `;
+    }).join('');
+    visibleEl.textContent = String(repos.length).padStart(2, '0');
+    firstRender = false;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    }[c]));
+  }
+
+  async function fetchRepos() {
+    if (USERNAME === 'YOUR_USERNAME') {
+      grid.innerHTML = `<div class="status error">⚠️ Set your GitHub username in the script<span class="hint">Open this file, find <code>const USERNAME</code> near the bottom and replace the placeholder.</span></div>`;
+      return;
+    }
+    try {
+      let all = [];
+      for (let page = 1; page <= 10; page++) {
+        const res = await fetch(`https://api.github.com/users/${USERNAME}/repos?per_page=100&sort=updated&page=${page}`);
+        if (!res.ok) {
+          if (res.status === 403) throw new Error('⏱️ GitHub API rate limit reached. Try again in a few minutes.');
+          if (res.status === 404) throw new Error(`❌ User "${USERNAME}" not found on GitHub.`);
+          throw new Error(`GitHub API error: ${res.status}`);
+        }
+        const batch = await res.json();
+        all = all.concat(batch);
+        if (batch.length < 100) break;
+      }
+
+      allRepos = all
+        .filter(r => r.has_pages && !r.archived && !r.disabled)
+        .map(r => ({
+          name: r.name,
+          description: r.description,
+          updated_at: r.updated_at,
+          url: r.homepage && r.homepage.startsWith('http')
+               ? r.homepage
+               : `https://${USERNAME}.github.io/${r.name}/`
+        }));
+
+      totalEl.textContent = String(allRepos.length).padStart(2, '0');
+      syncEl.textContent  = new Date().toLocaleString('en-GB', {
+        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+      });
+
+      render(allRepos);
+    } catch (e) {
+      grid.innerHTML = `<div class="status error">${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  searchEl.addEventListener('input', () => {
+    const q = searchEl.value.toLowerCase().trim();
+    const filtered = q
+      ? allRepos.filter(r =>
+          r.name.toLowerCase().includes(q) ||
+          (r.description || '').toLowerCase().includes(q))
+      : allRepos;
+    render(filtered);
+  });
+
+  fetchRepos();
+</script>
+</body>
+</html>
