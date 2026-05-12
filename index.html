@@ -174,7 +174,40 @@
     border: 1px solid rgba(31, 93, 107, 0.18);
     padding: 3px 8px; border-radius: 999px;
     letter-spacing: 0.04em;
+    cursor: pointer; transition: background 0.2s, color 0.2s;
   }
+  .card-tag:hover { background: rgba(31, 93, 107, 0.16); }
+  .card-tag.active {
+    background: var(--accent); color: var(--bg-elev);
+    border-color: var(--accent);
+  }
+
+  .tag-filters {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 24px;
+    opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+  .tag-filter {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: var(--text-dim); background: transparent;
+    border: 1px solid var(--border-strong);
+    padding: 5px 10px; border-radius: 999px;
+    letter-spacing: 0.04em; cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .tag-filter:hover { color: var(--accent); border-color: var(--accent); }
+  .tag-filter .tag-count { color: var(--text-faint); font-size: 9px; }
+  .tag-filter.active {
+    background: var(--accent); color: var(--bg-elev);
+    border-color: var(--accent);
+  }
+  .tag-filter.active .tag-count { color: rgba(253, 250, 242, 0.7); }
+  .tag-filter.clear {
+    color: var(--accent-warm); border-color: transparent;
+    text-transform: uppercase;
+  }
+  .tag-filter.clear:hover { color: var(--accent-warm); border-color: var(--accent-warm); }
 
   .status {
     grid-column: 1 / -1; padding: 96px 40px; text-align: center;
@@ -240,6 +273,8 @@
     <div class="count">📊 <em id="visible">0</em> visible</div>
   </div>
 
+  <div class="tag-filters" id="tag-filters"></div>
+
   <div class="grid" id="grid">
     <div class="status">⏳ Fetching from GitHub…</div>
   </div>
@@ -257,13 +292,14 @@
   const USERNAME = 'fixb';
   // ═══════════════════════════════════════════════════════════════════
 
-  const grid       = document.getElementById('grid');
-  const searchEl   = document.getElementById('search');
-  const visibleEl  = document.getElementById('visible');
-  const userEl     = document.getElementById('user');
-  const totalEl    = document.getElementById('total');
-  const syncEl     = document.getElementById('sync');
-  const srcEl      = document.getElementById('src');
+  const grid         = document.getElementById('grid');
+  const searchEl     = document.getElementById('search');
+  const visibleEl    = document.getElementById('visible');
+  const userEl       = document.getElementById('user');
+  const totalEl      = document.getElementById('total');
+  const syncEl       = document.getElementById('sync');
+  const srcEl        = document.getElementById('src');
+  const tagFiltersEl = document.getElementById('tag-filters');
 
   userEl.textContent = USERNAME;
   srcEl.textContent  = 'github.com/' + USERNAME;
@@ -271,6 +307,7 @@
 
   let allRepos = [];
   let firstRender = true;
+  const selectedTags = new Set();
 
   function relativeTime(iso) {
     const diff = Date.now() - new Date(iso).getTime();
@@ -316,7 +353,10 @@
         ? `<div class="card-desc">${escapeHtml(repo.description)}</div>`
         : `<div class="card-desc empty-desc">No description provided.</div>`;
       const tags = repo.topics.length
-        ? `<div class="card-tags">${repo.topics.map(t => `<span class="card-tag">${escapeHtml(t)}</span>`).join('')}</div>`
+        ? `<div class="card-tags">${repo.topics.map(t => {
+            const active = selectedTags.has(t) ? ' active' : '';
+            return `<span class="card-tag${active}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</span>`;
+          }).join('')}</div>`
         : '';
       return `
         <a class="card" href="${repo.url}" target="_blank" rel="noopener" style="animation-delay:${delay}s">
@@ -378,21 +418,65 @@
         day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
       });
 
-      render(allRepos);
+      applyFilters();
     } catch (e) {
       grid.innerHTML = `<div class="status error">${escapeHtml(e.message)}</div>`;
     }
   }
 
-  searchEl.addEventListener('input', () => {
+  function renderTagFilters() {
+    const counts = new Map();
+    for (const r of allRepos) {
+      for (const t of r.topics) counts.set(t, (counts.get(t) || 0) + 1);
+    }
+    if (counts.size === 0) { tagFiltersEl.innerHTML = ''; return; }
+    const sorted = [...counts.entries()].sort((a, b) =>
+      b[1] - a[1] || a[0].localeCompare(b[0]));
+    const chips = sorted.map(([tag, n]) => {
+      const active = selectedTags.has(tag) ? ' active' : '';
+      return `<button class="tag-filter${active}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)} <span class="tag-count">${n}</span></button>`;
+    }).join('');
+    const clear = selectedTags.size
+      ? `<button class="tag-filter clear" data-clear="1">✕ clear</button>`
+      : '';
+    tagFiltersEl.innerHTML = chips + clear;
+  }
+
+  function applyFilters() {
     const q = searchEl.value.toLowerCase().trim();
-    const filtered = q
-      ? allRepos.filter(r =>
-          r.name.toLowerCase().includes(q) ||
-          (r.description || '').toLowerCase().includes(q) ||
-          r.topics.some(t => t.toLowerCase().includes(q)))
-      : allRepos;
+    const filtered = allRepos.filter(r => {
+      const matchesQuery = !q ||
+        r.name.toLowerCase().includes(q) ||
+        (r.description || '').toLowerCase().includes(q) ||
+        r.topics.some(t => t.toLowerCase().includes(q));
+      const matchesTags = [...selectedTags].every(t => r.topics.includes(t));
+      return matchesQuery && matchesTags;
+    });
     render(filtered);
+    renderTagFilters();
+  }
+
+  function toggleTag(tag) {
+    if (selectedTags.has(tag)) selectedTags.delete(tag);
+    else selectedTags.add(tag);
+    applyFilters();
+  }
+
+  searchEl.addEventListener('input', applyFilters);
+
+  tagFiltersEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tag-filter');
+    if (!btn) return;
+    if (btn.dataset.clear) { selectedTags.clear(); applyFilters(); return; }
+    if (btn.dataset.tag) toggleTag(btn.dataset.tag);
+  });
+
+  grid.addEventListener('click', (e) => {
+    const tagEl = e.target.closest('.card-tag');
+    if (!tagEl) return;
+    e.preventDefault();
+    e.stopPropagation();
+    toggleTag(tagEl.dataset.tag);
   });
 
   fetchRepos();
