@@ -164,6 +164,18 @@
     transition: transform 0.3s, color 0.3s; align-self: flex-start;
   }
 
+  .card-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 18px;
+  }
+  .card-tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: var(--accent); background: rgba(31, 93, 107, 0.08);
+    border: 1px solid rgba(31, 93, 107, 0.18);
+    padding: 3px 8px; border-radius: 999px;
+    letter-spacing: 0.04em;
+  }
+
   .status {
     grid-column: 1 / -1; padding: 96px 40px; text-align: center;
     background: var(--bg-elev); color: var(--text-dim);
@@ -303,6 +315,9 @@
       const desc = repo.description
         ? `<div class="card-desc">${escapeHtml(repo.description)}</div>`
         : `<div class="card-desc empty-desc">No description provided.</div>`;
+      const tags = repo.topics.length
+        ? `<div class="card-tags">${repo.topics.map(t => `<span class="card-tag">${escapeHtml(t)}</span>`).join('')}</div>`
+        : '';
       return `
         <a class="card" href="${repo.url}" target="_blank" rel="noopener" style="animation-delay:${delay}s">
           <div class="card-meta">
@@ -312,6 +327,7 @@
           </div>
           <div class="card-name">${escapeHtml(repo.name)}</div>
           ${desc}
+          ${tags}
           <div class="card-arrow">View site →</div>
         </a>
       `;
@@ -351,6 +367,7 @@
           name: r.name,
           description: r.description,
           updated_at: r.updated_at,
+          topics: Array.isArray(r.topics) ? r.topics : [],
           url: r.homepage && r.homepage.startsWith('http')
                ? r.homepage
                : `https://${USERNAME}.github.io/${r.name}/`
@@ -372,7 +389,8 @@
     const filtered = q
       ? allRepos.filter(r =>
           r.name.toLowerCase().includes(q) ||
-          (r.description || '').toLowerCase().includes(q))
+          (r.description || '').toLowerCase().includes(q) ||
+          r.topics.some(t => t.toLowerCase().includes(q)))
       : allRepos;
     render(filtered);
   });
