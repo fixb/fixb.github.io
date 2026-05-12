@@ -402,7 +402,7 @@
       }
 
       allRepos = all
-        .filter(r => r.has_pages && !r.archived && !r.disabled)
+        .filter(r => r.has_pages && !r.archived && !r.disabled && r.description && r.description.trim())
         .map(r => ({
           name: r.name,
           description: r.description,
